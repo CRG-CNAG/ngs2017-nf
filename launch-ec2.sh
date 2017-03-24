@@ -4,7 +4,32 @@ set -u
 
 X_TYPE=${1:-t2.large}
 X_AMI=${2:-ami-7da1921b}
-X_SUBNET=${3:-subnet-05222a43} 
+X_DISK=${3:-8}
+X_SUBNET=${4:-subnet-05222a43} 
+
+function getRootDevice() {
+  local ami=$1
+  local size=$2
+
+  local str="$(aws ec2 describe-images --image-ids $ami --query 'Images[*].{ID:BlockDeviceMappings}' --output text)"
+  local device=$(echo "$str" | grep ID | cut -f 2)
+  local delete=$(echo "$str" | grep EBS | cut -f 2 | tr '[:upper:]' '[:lower:]')
+  local snapsh=$(echo "$str" | grep EBS | cut -f 4)
+  local type=$(echo "$str" | grep EBS | cut -f 6)
+
+cat << EndOfString
+{
+    "DeviceName": "$device",
+    "Ebs": {
+        "DeleteOnTermination": $delete,
+        "SnapshotId": "$snapsh",
+        "VolumeSize": $size,
+        "VolumeType": "$type"
+    }
+}
+EndOfString
+
+}
 
 function spinner() {
     local pid=$1
@@ -17,14 +42,15 @@ function spinner() {
         sleep $delay
         printf "\b\b\b\b\b\b"
     done
-    printf "    \b\b\b\b"
+    #printf "    \b\b\b\b"
 }
 
 echo "~~ N G S '1 7  -  W O R K S H O P ~~" 
 echo "" 
 echo "Launching EC2 virtual machine" 
-echo "- ami   : $X_AMI" 
 echo "- type  : $X_TYPE" 
+echo "- ami   : $X_AMI" 
+echo "- disk  : $X_DISK GB"
 echo "- subnet: $X_SUBNET"
 echo ""
 
@@ -34,7 +60,7 @@ echo ""
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then echo ABORTED; exit 1; fi
 
 # Launch a Ec2 instance  
-OUT=$(aws ec2 run-instances --image-id $X_AMI --instance-type $X_TYPE --subnet-id $X_SUBNET --output text)
+OUT=$(aws ec2 run-instances --image-id $X_AMI --instance-type $X_TYPE --subnet-id $X_SUBNET --block-device-mappings "[$(getRootDevice $X_AMI $X_DISK)]" --output text)
 
 X_ID=$(echo "$OUT" | grep INSTANCES | cut -f 8)
 X_STATE=$(echo "$OUT" | grep STATE | head -n 1 | cut -f 3) 
@@ -42,6 +68,7 @@ echo  ""
 echo "* Instance launched >> $X_ID <<"  
 echo -n "* Waiting for ready status .. "
 spinner $$ &
+spinner_pid=$!
 
 # tag the instance 
 aws ec2 create-tags --resources $X_ID --tags Key=Name,Value="User: $(hostname)"
@@ -72,6 +99,8 @@ while [ ! $X_READY ]; do
     [[ $? = 0 ]] && X_READY='ready'
     set -e
 done 
+
+kill $spinner_pid
 
 # Done
 echo ""
