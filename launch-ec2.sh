@@ -3,7 +3,7 @@ set -e
 set -u 
 
 X_TYPE=${1:-t2.large}
-X_AMI=${2:-ami-7da1921b}
+X_AMI=${2:-ami-61d0ec07}
 X_DISK=${3:-8}
 X_SUBNET=${4:-subnet-05222a43} 
 
