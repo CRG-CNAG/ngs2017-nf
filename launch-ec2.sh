@@ -67,7 +67,7 @@ X_STATE=$(echo "$OUT" | grep STATE | head -n 1 | cut -f 3)
 echo  ""
 echo "* Instance launched >> $X_ID <<"  
 echo -n "* Waiting for ready status .. "
-spinner $$ &
+(spinner $$ 2>/dev/null)&
 spinner_pid=$!
 
 # tag the instance 
@@ -100,7 +100,7 @@ while [ ! $X_READY ]; do
     set -e
 done 
 
-kill $spinner_pid
+kill $spinner_pid &>/dev/null
 
 # Done
 echo ""
