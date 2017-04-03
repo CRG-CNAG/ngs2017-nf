@@ -35,7 +35,7 @@ function spinner() {
     local pid=$1
     local delay=0.75
     local spinstr='|/-\'
-    while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
+    while [ -e .ngs-spinner ]; do
         local temp=${spinstr#?}
         printf " [%c]  " "$spinstr"
         local spinstr=$temp${spinstr%"$temp"}
@@ -45,6 +45,7 @@ function spinner() {
     #printf "    \b\b\b\b"
 }
 
+touch .ngs-spinner
 echo "~~ N G S '1 7  -  W O R K S H O P ~~" 
 echo "" 
 echo "Launching EC2 virtual machine" 
@@ -67,7 +68,7 @@ X_STATE=$(echo "$OUT" | grep STATE | head -n 1 | cut -f 3)
 echo  ""
 echo "* Instance launched >> $X_ID <<"  
 echo -n "* Waiting for ready status .. "
-(spinner $$ 2>/dev/null)&
+spinner $$ &
 spinner_pid=$!
 
 # tag the instance 
@@ -100,9 +101,11 @@ while [ ! $X_READY ]; do
     set -e
 done 
 
-kill $spinner_pid &>/dev/null
+rm .ngs-spinner
+wait $spinner_pid 2>/dev/null
 
 # Done
+echo "  ssh ngs17@$X_IP" > $HOME/ngs17-ssh.txt
 echo ""
 echo ""
 echo "* The instance is ready -- Login with the following command:" 
