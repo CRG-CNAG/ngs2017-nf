@@ -11,5 +11,7 @@
 7. https://public_docs.crg.es/rguigo/courses/ngs17/solutions/gentle_garden.html
 8. https://public_docs.crg.es/rguigo/courses/ngs17/solutions/hulking_hospital.html
 9. https://public_docs.crg.es/rguigo/courses/ngs17/solutions/imported_iron.html
-
+10. https://public_docs.crg.es/rguigo/courses/ngs17/solutions/jumping_jack.html
+11. https://public_docs.crg.es/rguigo/courses/ngs17/solutions/kind_koala.html
+12. https://public_docs.crg.es/rguigo/courses/ngs17/solutions/laughing_lynx.html
 
