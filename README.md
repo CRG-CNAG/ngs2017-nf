@@ -9,3 +9,4 @@
 5. https://public_docs.crg.es/rguigo/courses/ngs17/solutions/expensive_ear.html
 6. https://public_docs.crg.es/rguigo/courses/ngs17/solutions/fat_floor.html
 7. https://public_docs.crg.es/rguigo/courses/ngs17/solutions/gentle_garden.html
+8. https://public_docs.crg.es/rguigo/courses/ngs17/solutions/hulking_hospital.html
